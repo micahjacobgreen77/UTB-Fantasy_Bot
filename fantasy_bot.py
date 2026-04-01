@@ -154,6 +154,10 @@ def make_save_alert(name: str, player_team: str, context: dict) -> str:
     scoreboard = format_scoreboard(context)
     return f"SV: {name} ({player_team})\n{scoreboard}"
 
+def make_win_alert(name: str, player_team: str, context: dict) -> str:
+    scoreboard = format_scoreboard(context)
+    return f"W: {name} ({player_team})\n{scoreboard}"
+
 
 def get_all_tracked_entries(date_str: str, tracked_ids: set[int]) -> list[dict]:
     entries = []
@@ -216,6 +220,7 @@ def run_live_alerts() -> None:
         hr = safe_int(batting.get("homeRuns"))
         sb = safe_int(batting.get("stolenBases"))
         saves = safe_int(pitching.get("saves"))
+        wins = safe_int(pitching.get("wins"))
 
         try:
             context = get_live_game_context(game_id)
@@ -246,6 +251,14 @@ def run_live_alerts() -> None:
             if unique_key not in state["alerts_sent"]:
                 post_to_x(make_save_alert(name, team_abbrev, context))
                 state["alerts_sent"].append(unique_key)
+
+        
+
+    if wins > 0:
+        unique_key = f"{date_str}|win|{pid}|{wins}"
+        if unique_key not in state["alerts_sent"]:
+            post_to_x(make_win_alert(name, team_abbrev, context))
+            state["alerts_sent"].append(unique_key)
 
     save_state(state)
 
