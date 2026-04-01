@@ -1,0 +1,43 @@
+name: Fantasy Bot
+
+on:
+  schedule:
+    # Runs every 5 minutes
+    - cron: "*/5 * * * *"
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          # Use a PAT so the bot can push bot_state.json back
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install MLB-StatsAPI requests python-dotenv requests-oauthlib
+
+      - name: Run bot
+        env:
+          POST_TO_X: "true"
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+        run: python fantasy_bot.py
+
+      - name: Save bot state back to repo
+        run: |
+          git config user.name "fantasy-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add bot_state.json
+          git diff --cached --quiet || git commit -m "chore: update bot_state [skip ci]"
+          git push
