@@ -4,7 +4,7 @@ An automated fantasy baseball alert bot that posts to X (Twitter) in real time w
 
 ## How it works
 
-The bot checks live MLB game data every 5 minutes via the [MLB-StatsAPI](https://github.com/toddrob99/MLB-StatsAPI). When a tracked player on my fantasy baseball team records an HR, SB, or SV, it automatically posts an alert to X with the player's name, team, and live scoreboard. It won't double-post — a state file keeps track of what's already been sent.
+The bot checks live MLB game data every 15 minutes via the [MLB-StatsAPI](https://github.com/toddrob99/MLB-StatsAPI). When a tracked player on my fantasy baseball team records an HR, SB, or SV, it automatically posts an alert to X with the player's name, team, and live scoreboard. It won't double-post — a state file keeps track of what's already been sent.
 
 ## Example posts
 
@@ -73,7 +73,7 @@ python fantasy_bot.py
 
 ## Automation via GitHub Actions
 
-The bot runs automatically every 5 minutes via GitHub Actions. No server required.
+The bot runs automatically every 15 minutes via GitHub Actions. No server required.
 
 Required GitHub Secrets:
 - `API_KEY`
