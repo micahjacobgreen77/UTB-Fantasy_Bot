@@ -2,8 +2,9 @@ name: Fantasy Bot
 
 on:
   schedule:
-    # Runs every 5 minutes
-    - cron: "*/5 * * * *"
+    # Runs every 20 minutes from noon to midnight ET (16:00-04:00 UTC)
+    - cron: "0,15,30,45 16-23 * * *"
+    - cron: "0,15,30,45 0-4 * * *"
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
@@ -14,7 +15,6 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
-          # Use a PAT so the bot can push bot_state.json back
           token: ${{ secrets.GH_PAT }}
 
       - name: Set up Python
