@@ -15,8 +15,8 @@ NYY 2, HOU 5 (Bottom 6)
 SB: Andrés Giménez (TOR)
 COL 1, TOR 5 (Middle 8)
 
-SV: Edwin Díaz (NYM)
-NYM 3, ATL 2 (Final)
+SV: Edwin Díaz (LAD)
+LAD 3, ATL 2 (Final)
 
 W: Garrett Crochet (BOS)
 BOS 4, DET 1 (Final)
