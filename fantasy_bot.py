@@ -154,6 +154,7 @@ def make_save_alert(name: str, player_team: str, context: dict) -> str:
     scoreboard = format_scoreboard(context)
     return f"SV: {name} ({player_team})\n{scoreboard}"
 
+
 def make_win_alert(name: str, player_team: str, context: dict) -> str:
     scoreboard = format_scoreboard(context)
     return f"W: {name} ({player_team})\n{scoreboard}"
@@ -254,11 +255,11 @@ def run_live_alerts() -> None:
 
         
 
-    if wins > 0:
-        unique_key = f"{date_str}|win|{pid}|{wins}"
-        if unique_key not in state["alerts_sent"]:
-            post_to_x(make_win_alert(name, team_abbrev, context))
-            state["alerts_sent"].append(unique_key)
+        if wins > 0:
+            unique_key = f"{date_str}|win|{pid}|{wins}"
+            if unique_key not in state["alerts_sent"]:
+                post_to_x(make_win_alert(name, team_abbrev, context))
+                state["alerts_sent"].append(unique_key)
 
     save_state(state)
 
