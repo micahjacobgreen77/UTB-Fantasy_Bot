@@ -1,10 +1,10 @@
 # UTB Fantasy Bot 🤖⚾
 
-An automated fantasy baseball alert bot that posts to X (Twitter) in real time when players on my roster hit a home run, steal a base, or record a save.
+An automated fantasy baseball alert bot that posts to X (Twitter) in real time when players on my roster hit a home run, steal a base, record a save, or earn a win.
 
 ## How it works
 
-The bot checks live MLB game data every 15 minutes via the [MLB-StatsAPI](https://github.com/toddrob99/MLB-StatsAPI). When a tracked player on my fantasy baseball team records an HR, SB, or SV, it automatically posts an alert to X with the player's name, team, and live scoreboard. It won't double-post — a state file keeps track of what's already been sent.
+The bot checks live MLB game data every 15 minutes via the [MLB-StatsAPI](https://github.com/toddrob99/MLB-StatsAPI). When a tracked player on my fantasy baseball team records an HR, SB, SV, or W, it automatically posts an alert to X with the player's name, team, and live scoreboard. It won't double-post — a state file keeps track of what's already been sent.
 
 ## Example posts
 
@@ -17,6 +17,9 @@ COL 1, TOR 5 (Middle 8)
 
 SV: Edwin Díaz (NYM)
 NYM 3, ATL 2 (Final)
+
+W: Garrett Crochet (CWS)
+CWS 4, DET 1 (Final)
 ```
 
 ## Stack
@@ -24,18 +27,19 @@ NYM 3, ATL 2 (Final)
 - Python 3.12
 - [MLB-StatsAPI](https://github.com/toddrob99/MLB-StatsAPI) — live game and player data
 - [X API v2](https://developer.twitter.com/en/docs/twitter-api) — posting alerts via OAuth 1.0a
-- GitHub Actions — runs every 5 minutes automatically, no server needed
+- GitHub Actions — runs the bot on a schedule, no server needed
+- [cron-job.org](https://cron-job.org) — triggers the workflow every 15 minutes reliably
 
 ## Project structure
 
 ```
-utb-fantasy-bot/
+UTB-Fantasy_Bot/
 ├── fantasy_bot.py        # Main bot logic
 ├── roster.json           # Players being tracked
 ├── bot_state.json        # Tracks alerts already sent (auto-updated)
 ├── .github/
 │   └── workflows/
-│       └── bot.yml       # GitHub Actions schedule
+│       └── bot.yml       # GitHub Actions workflow
 └── .env                  # Local credentials (never committed)
 ```
 
@@ -43,8 +47,8 @@ utb-fantasy-bot/
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/YOUR_USERNAME/utb-fantasy-bot.git
-cd utb-fantasy-bot
+git clone https://github.com/micahjacobgreen77/UTB-Fantasy_Bot.git
+cd UTB-Fantasy_Bot
 ```
 
 ### 2. Install dependencies
@@ -71,9 +75,9 @@ Set `POST_TO_X=false` in `.env` to print alerts to the terminal without posting.
 python fantasy_bot.py
 ```
 
-## Automation via GitHub Actions
+## Automation
 
-The bot runs automatically every 15 minutes via GitHub Actions. No server required.
+The bot is triggered every 15 minutes via [cron-job.org](https://cron-job.org), which calls the GitHub Actions `workflow_dispatch` endpoint. This replaces relying on GitHub's built-in cron scheduler, which is unreliable for frequent schedules.
 
 Required GitHub Secrets:
 - `API_KEY`
@@ -90,4 +94,3 @@ git add roster.json
 git commit -m "update roster"
 git push
 ```
-
