@@ -18,8 +18,8 @@ COL 1, TOR 5 (Middle 8)
 SV: Edwin Díaz (NYM)
 NYM 3, ATL 2 (Final)
 
-W: Garrett Crochet (CWS)
-CWS 4, DET 1 (Final)
+W: Garrett Crochet (BOS)
+BOS 4, DET 1 (Final)
 ```
 
 ## Stack
