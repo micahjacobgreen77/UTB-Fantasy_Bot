@@ -1,7 +1,8 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 import requests
 import statsapi
@@ -20,6 +21,8 @@ ACCESS_TOKEN = os.getenv("ACCESS_TOKEN", "")
 ACCESS_TOKEN_SECRET = os.getenv("ACCESS_TOKEN_SECRET", "")
 
 POST_TO_X = os.getenv("POST_TO_X", "false").lower() == "true"
+
+ET = ZoneInfo("America/New_York")
 
 
 def load_roster() -> dict:
@@ -47,8 +50,12 @@ def safe_int(value, default=0) -> int:
         return default
 
 
-def today_str() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+def get_et_dates() -> list[str]:
+    """Return today and yesterday in ET to avoid missing late West Coast games."""
+    now_et = datetime.now(ET)
+    today = now_et.strftime("%Y-%m-%d")
+    yesterday = (now_et - timedelta(days=1)).strftime("%Y-%m-%d")
+    return [today, yesterday]
 
 
 def post_to_x(text: str) -> None:
@@ -193,6 +200,7 @@ def get_all_tracked_entries(date_str: str, tracked_ids: set[int]) -> list[dict]:
                     "player_id": pid,
                     "name": person.get("fullName", ""),
                     "team_abbrev": team_abbrev,
+                    "date_str": date_str,
                     "batting": pdata.get("stats", {}).get("batting", {}) or {},
                     "pitching": pdata.get("stats", {}).get("pitching", {}) or {},
                 })
@@ -206,15 +214,25 @@ def run_live_alerts() -> None:
 
     player_id_map = build_player_id_map(roster["players"])
     tracked_ids = set(player_id_map.keys())
-    date_str = today_str()
 
-    entries = get_all_tracked_entries(date_str, tracked_ids)
+    # Check both today and yesterday in ET to catch late West Coast games
+    dates = get_et_dates()
+    all_entries = []
+    seen_game_player = set()
 
-    for entry in entries:
+    for date_str in dates:
+        for entry in get_all_tracked_entries(date_str, tracked_ids):
+            key = (entry["game_id"], entry["player_id"])
+            if key not in seen_game_player:
+                seen_game_player.add(key)
+                all_entries.append(entry)
+
+    for entry in all_entries:
         pid = entry["player_id"]
         name = entry["name"]
         game_id = entry["game_id"]
         team_abbrev = entry["team_abbrev"]
+        date_str = entry["date_str"]
         batting = entry["batting"]
         pitching = entry["pitching"]
 
@@ -252,8 +270,6 @@ def run_live_alerts() -> None:
             if unique_key not in state["alerts_sent"]:
                 post_to_x(make_save_alert(name, team_abbrev, context))
                 state["alerts_sent"].append(unique_key)
-
-        
 
         if wins > 0:
             unique_key = f"{date_str}|win|{pid}|{wins}"
